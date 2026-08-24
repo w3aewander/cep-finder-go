@@ -1,4 +1,5 @@
 # CEP-FINDER - Buscador de Endereço
+### Use para estudar GOLang
 >
 > Desenvolvido por Wanderlei Silva do Carmo <wander.silva@gmail.com>
 >
@@ -52,38 +53,38 @@ Se o CEP não existir, estiver incompleto ou o serviço externo não responder, 
 - [Node.js](https://nodejs.org/) e npm (recomenda-se uma versão LTS atual);
 - conexão com a internet para consultar o ViaCEP.
 
-## Executar localmente
+## Como executar a aplicação
 
-### Aplicação completa, como em produção
+O servidor Go publica **a API e a interface**. Portanto, depois de gerar `frontend/dist`, basta iniciar um único processo e acessar a porta `8080`.
 
-Primeiro, instale as dependências e gere a versão estática do frontend:
+### No computador local (versão completa)
+
+Na primeira execução, a partir da raiz do repositório, instale as dependências do frontend e gere os arquivos que serão servidos pelo Go:
 
 ```bash
 cd frontend
 npm install
 npm run build
-```
-
-Depois, volte à raiz e inicie o servidor:
-
-```bash
 cd ..
-go run .
 ```
 
-Abra [http://localhost:8080](http://localhost:8080). O Gin entrega a interface compilada em `frontend/dist` e a API no mesmo endereço.
-
-### Desenvolvimento do frontend com atualização automática
-
-Use dois terminais.
-
-No primeiro, inicie a API:
+Inicie a aplicação:
 
 ```bash
 go run .
 ```
 
-No segundo, inicie o Vite:
+Mantenha esse terminal aberto e acesse [http://localhost:8080](http://localhost:8080). Para encerrar, use `Ctrl+C` no terminal. Sempre que alterar arquivos em `frontend/src`, execute novamente `npm run build` antes de reiniciar o servidor.
+
+### Durante o desenvolvimento do frontend
+
+Use dois terminais. No primeiro, na raiz do projeto, execute a API:
+
+```bash
+go run .
+```
+
+No segundo, execute o Vite:
 
 ```bash
 cd frontend
@@ -91,9 +92,31 @@ npm install
 npm run dev
 ```
 
-Abra o endereço informado pelo Vite — normalmente [http://localhost:5173](http://localhost:5173). A configuração do Vite encaminha chamadas iniciadas por `/api` para `http://localhost:8080`, então o frontend continua usando `fetch('/api/...')` sem conhecer o endereço do backend.
+Abra o endereço informado pelo Vite — normalmente [http://localhost:5173](http://localhost:5173). Ele atualiza a interface automaticamente e encaminha `/api` para `http://localhost:8080`.
 
 > O backend libera CORS especificamente para `http://localhost:5173`, que é a porta padrão do Vite. Caso o Vite seja iniciado em outra origem, ajuste a função `cors()` em `main.go`.
+
+### Em produção
+
+No servidor de destino, instale Go 1.22+ e Node.js/npm, copie o código do projeto e, na raiz, gere a interface e o executável:
+
+```bash
+cd /caminho/para/cep-finder/frontend
+npm ci
+npm run build
+cd ..
+go build -o cep-finder .
+```
+
+Inicie o binário **a partir da raiz do projeto**, pois ele procura a interface em `./frontend/dist`:
+
+```bash
+./cep-finder
+```
+
+A aplicação passa a atender em `http://IP-DO-SERVIDOR:8080`. Em um ambiente exposto à internet, mantenha a porta `8080` acessível apenas localmente ou na rede interna e publique o site por um proxy reverso com HTTPS (por exemplo, Nginx ou Caddy), direcionando as requisições ao processo em `http://127.0.0.1:8080`.
+
+Para mantê-la em execução após sair da sessão, cadastre `./cep-finder` como serviço do gerenciador de processos do sistema (por exemplo, systemd) e configure o diretório de trabalho como a raiz deste repositório. O processo também precisa de acesso à internet para consultar o ViaCEP.
 
 ## Comandos úteis
 
@@ -222,4 +245,3 @@ go test ./...
 ## Licença
 
 Este projeto é distribuído sob a **GNU General Public License, versão 3.0 (GPL-3.0-only)**. Consulte o texto completo em [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html).
-
