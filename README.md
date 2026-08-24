@@ -1,4 +1,4 @@
-# BuscaCEP
+# CEP-FINDER - Buscador de Endereço
 >
 > Desenvolvido por Wanderlei Silva do Carmo <wander.silva@gmail.com>
 >
