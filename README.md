@@ -1,4 +1,10 @@
 # BuscaCEP
+>
+> Desenvolvido por Wanderlei Silva do Carmo <wander.silva@gmail.com>
+> Engenheiro Arquiteto de Software
+>
+
+## Aplicação para uso didático
 
 Uma aplicação full-stack para consultar endereços brasileiros a partir de um CEP. Ela combina uma interface React com um servidor Go/Gin que valida o CEP e consulta a API pública [ViaCEP](https://viacep.com.br/).
 
@@ -216,4 +222,3 @@ go test ./...
 
 Este projeto é distribuído sob a **GNU General Public License, versão 3.0 (GPL-3.0-only)**. Consulte o texto completo em [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html).
 
-Não existe uma versão oficial “GPL 3.5”; a referência correta é GPLv3 (publicada em 29 de junho de 2007). Em termos práticos, ela permite usar, estudar, modificar e redistribuir o software, desde que redistribuições do trabalho derivado permaneçam sob a GPLv3 e tragam o código-fonte e os avisos de licença aplicáveis.
