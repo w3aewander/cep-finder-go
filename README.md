@@ -1,134 +1,138 @@
-# CEP-FINDER - Buscador de Endereço
-### Use para estudar GOLang
->
-> Desenvolvido por Wanderlei Silva do Carmo <wander.silva@gmail.com>
->
-> Engenheiro Arquiteto de Software
->
+# CEP-FINDER — Buscador de endereços por CEP
 
-## Aplicação para uso didático
+Aplicação web para consultar endereços brasileiros a partir de um CEP. Informe os oito dígitos e receba logradouro, bairro, cidade, estado e, quando disponíveis, complemento e DDD.
 
-Uma aplicação full-stack para consultar endereços brasileiros a partir de um CEP. Ela combina uma interface React com um servidor Go/Gin que valida o CEP e consulta a API pública [ViaCEP](https://viacep.com.br/).
+O projeto foi criado também como material de estudo: o React conversa com uma API em Go, que por sua vez consulta o serviço público [ViaCEP](https://viacep.com.br/).
 
-Além de servir para consultas rápidas, o projeto é intencionalmente pequeno e separado por responsabilidades, para facilitar o estudo de uma comunicação frontend → backend → serviço externo.
+> Desenvolvido por Wanderlei Silva do Carmo (<wander.silva@gmail.com>).
 
-## O que a aplicação faz
+## Índice
 
-1. A pessoa informa um CEP no campo de busca — com ou sem pontuação.
-2. A interface mantém apenas os oito dígitos e aplica a máscara `99999-999`.
-3. O React pede `GET /api/cep/:cep` ao backend.
-4. O backend valida o CEP, consulta o ViaCEP e adapta a resposta para o formato da aplicação.
-5. A tela exibe endereço, bairro, cidade, estado e, quando disponíveis, complemento e DDD. O resultado também pode ser copiado.
+- [O que você precisa](#o-que-você-precisa)
+- [Instalação e primeira execução](#instalação-e-primeira-execução)
+- [Como usar a aplicação](#como-usar-a-aplicação)
+- [Desenvolvendo a interface](#desenvolvendo-a-interface)
+- [Comandos úteis](#comandos-úteis)
+- [API](#api)
+- [Solução de problemas](#solução-de-problemas)
+- [Para estudar o código](#para-estudar-o-código)
 
-```text
-Navegador (React) ── GET /api/cep/01001000 ──> Go + Gin
-                                                     │
-                                                     └──> ViaCEP
-                                                              │
-Navegador <── JSON normalizado <──────────────────────────────┘
+## O que você precisa
+
+Antes de começar, instale:
+
+| Ferramenta | Versão necessária | Como verificar |
+| --- | --- | --- |
+| [Go](https://go.dev/dl/) | 1.22 ou superior | `go version` |
+| [Node.js](https://nodejs.org/) | versão LTS atual recomendada | `node --version` |
+| npm | instalado junto com o Node.js | `npm --version` |
+| Git | opcional, se for clonar o repositório | `git --version` |
+
+Também é necessária uma conexão com a internet enquanto a aplicação estiver consultando CEPs, pois os dados vêm do ViaCEP.
+
+## Instalação e primeira execução
+
+Siga esta seção na ordem, inclusive se for a primeira vez usando Go ou React.
+
+### 1. Baixe o projeto
+
+**Opção A — usando Git**
+
+```bash
+git clone <URL-DO-REPOSITORIO>
+cd cep-finder
 ```
 
-## Para quem vai usar
+Substitua `<URL-DO-REPOSITORIO>` pelo endereço do repositório. Se ele já foi baixado, apenas abra um terminal dentro da pasta `cep-finder`.
 
-1. Abra a aplicação no navegador.
-2. Digite os oito números do CEP, por exemplo `01001-000`.
-3. Selecione **Buscar** ou pressione Enter.
-4. Confira os dados encontrados e, se desejar, use **Copiar** para enviar o endereço à área de transferência.
+**Opção B — arquivo ZIP**
 
-Se o CEP não existir, estiver incompleto ou o serviço externo não responder, a tela mostra uma mensagem explicando o problema. A consulta depende da disponibilidade e da cobertura da base do ViaCEP.
+Baixe o ZIP do projeto, extraia-o e abra um terminal na pasta extraída. Ela deve conter arquivos como `main.go`, `go.mod` e a pasta `frontend`.
 
-## Tecnologias
+### 2. Instale as dependências da interface
 
-| Camada | Tecnologia | Papel no projeto |
-| --- | --- | --- |
-| Backend | Go 1.22 e Gin | Rota HTTP, validação, CORS, arquivos estáticos e integração externa |
-| Frontend | React + TypeScript | Formulário, estados da tela e apresentação do endereço |
-| Ferramentas do frontend | Vite | Servidor de desenvolvimento e geração dos arquivos de produção |
-| Interface | CSS, Lucide React e Framer Motion | Estilos, ícones e animações |
-| Dados | ViaCEP | Fonte pública dos dados de CEP |
-
-## Requisitos
-
-- [Go](https://go.dev/dl/) 1.22 ou superior;
-- [Node.js](https://nodejs.org/) e npm (recomenda-se uma versão LTS atual);
-- conexão com a internet para consultar o ViaCEP.
-
-## Como executar a aplicação
-
-O servidor Go publica **a API e a interface**. Portanto, depois de gerar `frontend/dist`, basta iniciar um único processo e acessar a porta `8080`.
-
-### No computador local (versão completa)
-
-Na primeira execução, a partir da raiz do repositório, instale as dependências do frontend e gere os arquivos que serão servidos pelo Go:
+Ainda na pasta raiz do projeto, execute:
 
 ```bash
 cd frontend
 npm install
+```
+
+Esse comando baixa as bibliotecas usadas pela interface. Aguarde até ele terminar sem erros.
+
+### 3. Gere a interface para o servidor Go
+
+No mesmo terminal, execute:
+
+```bash
 npm run build
 cd ..
 ```
 
-Inicie a aplicação:
+O comando cria a pasta `frontend/dist`. Ela é a versão otimizada da interface que será entregue pelo servidor Go.
+
+### 4. Inicie a aplicação
+
+De volta à raiz — a mesma pasta que contém `main.go` — execute:
 
 ```bash
 go run .
 ```
 
-Mantenha esse terminal aberto e acesse [http://localhost:8080](http://localhost:8080). Para encerrar, use `Ctrl+C` no terminal. Sempre que alterar arquivos em `frontend/src`, execute novamente `npm run build` antes de reiniciar o servidor.
+Você deverá ver a mensagem `API disponível em http://localhost:8080`. Mantenha esse terminal aberto e acesse [http://localhost:8080](http://localhost:8080) no navegador.
 
-### Durante o desenvolvimento do frontend
+Para parar a aplicação, volte ao terminal e pressione `Ctrl+C`.
 
-Use dois terminais. No primeiro, na raiz do projeto, execute a API:
+## Como usar a aplicação
+
+1. Abra `http://localhost:8080`.
+2. Digite um CEP com oito números, por exemplo `01001-000`.
+3. Clique em **Buscar** ou pressione `Enter`.
+4. Confira o endereço retornado.
+5. Se desejar, use **Copiar** para levar o resultado para a área de transferência.
+
+Você pode digitar o CEP com ou sem hífen; a interface ajusta a formatação automaticamente. CEPs inválidos, inexistentes ou falhas temporárias do serviço mostram uma mensagem na tela.
+
+## Desenvolvendo a interface
+
+Para alterar a interface com atualização automática, use dois terminais.
+
+No primeiro, na raiz do projeto, inicie a API:
 
 ```bash
 go run .
 ```
 
-No segundo, execute o Vite:
+No segundo, inicie o Vite:
 
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
 
-Abra o endereço informado pelo Vite — normalmente [http://localhost:5173](http://localhost:5173). Ele atualiza a interface automaticamente e encaminha `/api` para `http://localhost:8080`.
+Abra o endereço exibido pelo Vite — normalmente [http://localhost:5173](http://localhost:5173). As chamadas para `/api` serão encaminhadas automaticamente para o Go na porta `8080`.
 
-> O backend libera CORS especificamente para `http://localhost:5173`, que é a porta padrão do Vite. Caso o Vite seja iniciado em outra origem, ajuste a função `cors()` em `main.go`.
-
-### Em produção
-
-No servidor de destino, instale Go 1.22+ e Node.js/npm, copie o código do projeto e, na raiz, gere a interface e o executável:
+Quando quiser testar a versão que será entregue pelo Go, gere a interface de novo:
 
 ```bash
-cd /caminho/para/cep-finder/frontend
-npm ci
+cd frontend
 npm run build
 cd ..
-go build -o cep-finder .
+go run .
 ```
-
-Inicie o binário **a partir da raiz do projeto**, pois ele procura a interface em `./frontend/dist`:
-
-```bash
-./cep-finder
-```
-
-A aplicação passa a atender em `http://IP-DO-SERVIDOR:8080`. Em um ambiente exposto à internet, mantenha a porta `8080` acessível apenas localmente ou na rede interna e publique o site por um proxy reverso com HTTPS (por exemplo, Nginx ou Caddy), direcionando as requisições ao processo em `http://127.0.0.1:8080`.
-
-Para mantê-la em execução após sair da sessão, cadastre `./cep-finder` como serviço do gerenciador de processos do sistema (por exemplo, systemd) e configure o diretório de trabalho como a raiz deste repositório. O processo também precisa de acesso à internet para consultar o ViaCEP.
 
 ## Comandos úteis
 
-| Onde | Comando | Resultado |
+| Onde executar | Comando | Resultado |
 | --- | --- | --- |
-| Raiz | `go run .` | Inicia a API e, após o build, também a interface em `:8080` |
-| Raiz | `go test ./...` | Executa os testes unitários do backend |
-| `frontend` | `npm run dev` | Inicia o Vite com recarga automática |
-| `frontend` | `npm run build` | Verifica TypeScript e gera `frontend/dist` |
+| Raiz | `go run .` | Inicia a API e serve a interface gerada em `:8080` |
+| Raiz | `go test ./...` | Executa os testes do backend |
+| `frontend` | `npm install` | Instala as dependências da interface |
+| `frontend` | `npm run dev` | Inicia o ambiente de desenvolvimento com recarga automática |
+| `frontend` | `npm run build` | Verifica TypeScript e cria `frontend/dist` |
 | `frontend` | `npm run preview` | Visualiza localmente o build gerado pelo Vite |
 
-## API HTTP
+## API
 
 ### Consultar um CEP
 
@@ -136,9 +140,9 @@ Para mantê-la em execução após sair da sessão, cadastre `./cep-finder` como
 GET /api/cep/:cep
 ```
 
-O parâmetro pode conter pontuação: o backend remove qualquer caractere que não seja dígito. Após a normalização, ele precisa ter exatamente oito números.
+O parâmetro aceita pontuação, mas precisa conter exatamente oito dígitos após a normalização.
 
-Exemplo:
+Exemplo, com o servidor em execução:
 
 ```bash
 curl http://localhost:8080/api/cep/01001-000
@@ -157,91 +161,76 @@ Resposta de sucesso (`200 OK`):
 }
 ```
 
-Os campos `complemento` e `ddd` são opcionais e só aparecem quando há valor na resposta de origem.
+`complemento` e `ddd` só aparecem quando forem informados pelo ViaCEP.
 
-| Situação | Status | Exemplo de resposta |
+| Situação | Status | Resposta |
 | --- | --- | --- |
-| CEP com menos ou mais de oito dígitos | `400 Bad Request` | `{"error":"CEP inválido. Informe os 8 dígitos do CEP."}` |
-| CEP válido, mas não localizado | `404 Not Found` | `{"error":"Não encontramos um endereço para este CEP."}` |
-| Falha ao acessar ou interpretar o ViaCEP | `502 Bad Gateway` | `{"error":"O serviço de CEP está indisponível. Tente novamente em instantes."}` |
+| CEP com quantidade incorreta de dígitos | `400` | `CEP inválido. Informe os 8 dígitos do CEP.` |
+| CEP válido, mas não localizado | `404` | `Não encontramos um endereço para este CEP.` |
+| ViaCEP indisponível ou resposta inválida | `502` | Mensagem para tentar novamente em instantes |
 
-## Estrutura do projeto
+## Solução de problemas
 
-```text
-.
-├── main.go                 # Servidor Gin, rota, integração ViaCEP e CORS
-├── main_test.go            # Testes unitários da consulta ao ViaCEP
-├── go.mod / go.sum         # Módulo Go e dependências
-├── README.md
-└── frontend/
-    ├── src/
-    │   ├── App.tsx         # Componente, formulário e estados da interface
-    │   ├── main.tsx        # Ponto de montagem do React
-    │   └── styles.css      # Estilos responsivos da aplicação
-    ├── vite.config.ts      # Proxy de /api para o backend no desenvolvimento
-    └── package.json        # Scripts e dependências do frontend
-```
+### `go: command not found` ou `go não é reconhecido`
 
-`frontend/dist/` não é fonte do projeto: é criado pelo comando `npm run build` e é o diretório que o Gin publica em produção local.
+O Go não está instalado ou não foi incluído no `PATH`. Instale-o pelo [site oficial](https://go.dev/dl/), feche e abra o terminal novamente e confirme com `go version`.
 
-## Como o código está organizado
+### `npm: command not found` ou `npm não é reconhecido`
 
-### Backend: `main.go`
+Instale uma versão LTS do [Node.js](https://nodejs.org/). O npm é instalado junto. Reinicie o terminal e confirme com `npm --version`.
 
-- `main()` configura o Gin com log, recuperação de erros e CORS; registra `GET /api/cep/:cep`; e publica os arquivos gerados pelo Vite.
-- `digitsOnly` é uma expressão regular usada para remover hífens, pontos e outros caracteres do CEP recebido.
-- `lookupCEP(...)` concentra a integração HTTP. Ela recebe um `context`, um `http.Client` e o CEP, para que a lógica seja reutilizável e testável.
-- O cliente HTTP possui timeout de oito segundos. Isso impede que uma falha do serviço externo deixe a requisição aguardando indefinidamente.
-- `viacepResponse` representa os nomes de campos devolvidos pelo ViaCEP, como `localidade` e `uf`.
-- `cepResponse` é o contrato público desta aplicação. Nele, `localidade` é apresentado como `cidade` e `uf` como `estado`, deixando a API própria mais clara para quem a consome.
-- `errNotFound` é um erro sentinela: a rota consegue identificá-lo com `errors.Is` e devolver `404`, enquanto outros erros externos viram `502`.
+### A página abre, mas não tem estilo ou mostra erro 404
 
-### Frontend: `frontend/src/App.tsx`
-
-O componente `App` mantém cinco estados principais:
-
-| Estado | Finalidade |
-| --- | --- |
-| `cep` | Texto digitado, já com máscara visual |
-| `address` | Endereço retornado pela API ou `null` antes de uma busca |
-| `message` | Mensagem de validação, erro ou confirmação de cópia |
-| `loading` | Controla o indicador de carregamento e desabilita o botão |
-| `helpOpen` | Abre e fecha o diálogo “Como funciona?” |
-
-Na função `search`, o formulário previne seu envio tradicional, remove a máscara, valida o tamanho e usa `fetch` para chamar a API. O `try/catch/finally` permite exibir falhas sem travar a interface e garante que `loading` volte a `false` ao fim da requisição.
-
-`maskCEP` cuida apenas da experiência no navegador; a validação decisiva também existe no backend. Essa duplicação é deliberada: a interface dá retorno imediato, enquanto o servidor continua protegido quando alguém chama a API diretamente.
-
-## Testes
-
-Os testes não fazem chamadas reais à internet. Em `main_test.go`, `roundTripperFunc` simula o transporte HTTP de um `http.Client`, permitindo controlar a resposta recebida por `lookupCEP`.
-
-Os cenários cobertos são:
-
-- uma resposta válida do ViaCEP é transformada em `cepResponse`;
-- a marca `{"erro":"true"}` do ViaCEP é convertida em `errNotFound`.
-
-Execute-os com:
+Provavelmente a interface ainda não foi gerada. Pare o servidor e, na raiz do projeto, execute:
 
 ```bash
-go test ./...
+cd frontend
+npm install
+npm run build
+cd ..
+go run .
 ```
 
-## Roteiro de estudo sugerido
+### A porta 8080 já está em uso
 
-1. Comece em `frontend/src/main.tsx` para ver onde o React é montado.
-2. Leia `App.tsx`, especialmente `maskCEP`, `search` e `copyAddress`, para acompanhar eventos e estado no React.
-3. Veja `vite.config.ts` e observe por que `/api` chega ao servidor Go durante o desenvolvimento.
-4. Em `main.go`, acompanhe a rota até `lookupCEP` e compare `viacepResponse` com `cepResponse`.
-5. Por fim, leia `main_test.go` para entender como uma dependência HTTP é simulada sem acessar a rede.
+Encerre outro processo que esteja usando a porta ou altere `router.Run(":8080")` em `main.go` para uma porta livre, como `:8081`. Então abra a mesma porta no navegador.
+
+### A busca retorna mensagem de indisponibilidade
+
+Verifique sua conexão com a internet e tente novamente. A aplicação depende do ViaCEP; se o serviço externo estiver indisponível, a consulta não pode ser concluída.
+
+### Alterei arquivos em `frontend/src`, mas não vejo a mudança em `localhost:8080`
+
+Execute `npm run build` dentro de `frontend` e reinicie `go run .`, ou use `npm run dev` para trabalhar com recarga automática.
+
+## Para estudar o código
+
+O fluxo da aplicação é:
+
+```text
+Navegador (React) → GET /api/cep/:cep → Go + Gin → ViaCEP
+       ↑                                      │
+       └──────────── JSON normalizado ────────┘
+```
+
+Uma boa ordem de leitura é:
+
+1. `frontend/src/main.tsx`: onde o React é montado.
+2. `frontend/src/App.tsx`: formulário, máscara do CEP, busca e cópia do endereço.
+3. `frontend/vite.config.ts`: proxy de `/api` no desenvolvimento.
+4. `main.go`: rota HTTP, validação, CORS e integração com o ViaCEP.
+5. `main_test.go`: testes da integração HTTP sem chamadas reais à internet.
+
+No backend, a resposta do ViaCEP é convertida para um contrato próprio: `localidade` vira `cidade` e `uf` vira `estado`. Isso evita acoplar a interface diretamente ao formato do serviço externo.
 
 ## Limitações e cuidados
 
-- Não há banco de dados nem cache: cada consulta válida gera uma chamada ao ViaCEP.
-- Os dados exibidos são os retornados pelo serviço externo e podem ser incompletos para alguns CEPs.
-- O projeto está configurado para uso local. Antes de publicar, defina a origem permitida pelo CORS para o domínio da interface e considere logs, monitoramento, limite de requisições e cache.
-- A funcionalidade de copiar depende da API de área de transferência do navegador, que normalmente requer um contexto seguro (HTTPS) fora de `localhost`.
+- Não há banco de dados nem cache: cada busca válida consulta o ViaCEP.
+- Alguns CEPs podem ter campos sem informação, dependendo da base de origem.
+- O CORS de desenvolvimento aceita `http://localhost:5173`. Para publicar o projeto, ajuste a origem permitida em `cors()` no arquivo `main.go`.
+- Fora de `localhost`, a função de cópia normalmente exige que a aplicação esteja em HTTPS.
+- Para produção, coloque a aplicação atrás de um proxy reverso com HTTPS e mantenha o processo Go acessível apenas pela rede necessária.
 
 ## Licença
 
-Este projeto é distribuído sob a **GNU General Public License, versão 3.0 (GPL-3.0-only)**. Consulte o texto completo em [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html).
+Este projeto é distribuído sob a **GNU General Public License, versão 3.0 (GPL-3.0-only)**. Consulte a [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.html).
