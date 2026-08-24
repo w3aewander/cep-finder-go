@@ -1,5 +1,9 @@
 # CEP-FINDER — Buscador de endereços por CEP
 
+<p align="center">
+  <img src="frontend/public/cep-finder-logo.png" alt="Logo CEP-FINDER" width="560">
+</p>
+
 Aplicação web para consultar endereços brasileiros a partir de um CEP. Informe os oito dígitos e receba logradouro, bairro, cidade, estado e, quando disponíveis, complemento e DDD.
 
 O projeto foi criado também como material de estudo: o React conversa com uma API em Go, que por sua vez consulta o serviço público [ViaCEP](https://viacep.com.br/).

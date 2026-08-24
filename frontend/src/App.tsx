@@ -45,7 +45,7 @@ export default function App() {
   }
 
   return <main>
-    <nav className="nav"><a className="brand" href="/"><span><MapPin size={19} /></span>BuscaCEP</a><button className="help" onClick={() => setHelpOpen(true)}><CircleHelp size={18} /> Como funciona?</button></nav>
+    <nav className="nav"><a className="brand" href="/" aria-label="CEP-FINDER — página inicial"><img src="/cep-finder-logo.png" alt="CEP-FINDER" /></a><button className="help" onClick={() => setHelpOpen(true)}><CircleHelp size={18} /> Como funciona?</button></nav>
     <section className="hero">
       <motion.div className="eyebrow" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><Sparkles size={14} /> Consulta rápida e confiável</motion.div>
       <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .08 }}>Seu endereço,<br /><em>em poucos segundos.</em></motion.h1>
