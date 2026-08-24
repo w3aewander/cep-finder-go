@@ -1,0 +1,16 @@
+# Go build artifacts
+cep-finder
+cep-finder.exe
+*.exe
+
+# Frontend dependencies and generated output
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+
+# Local environment and editor files
+.env
+.env.*
+.DS_Store
+.idea/
+.vscode/
